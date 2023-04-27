@@ -1,7 +1,7 @@
 #ifndef PAGERANK_PAGERANK_H
 #define PAGERANK_PAGERANK_H
 
-#include<map>;
+#include<map>
 #include<vector>
 #include<set>
 #include<string>
@@ -23,6 +23,7 @@ private:
 	int blockNum;					//分块块数
 	int totalEdges;					//数据总共的边数
 	int minItemNum, maxItemNum;		//最小编号和最大编号
+	int threadNum;					//线程数
 	vector<pair<long double, int>> output;	//保存最后排序结果
 
 public:
@@ -40,12 +41,14 @@ public:
 	void setBlockNum(int blockNum);
 	int getShowNum() const;
 	void setShowNum(int showNum);
+	int getThreadNum() const;
+	void setThreadNum(int threadNum);
 
 	//读取文件
 	void readFile(string dataFile);
 	//PageRank构造函数
 	PageRank(int _minItemNum = -1, int _maxItemNum = -1, int _maxIteration = -1, long double _beta = 0,
-		int block_nums = 1, long double convergence = 1e-5, int _showNum = 0);
+		int block_nums = 1, long double convergence = 1e-5, int _showNum = 0, int _threadNum=1);
 	//默认析构函数
 	~PageRank() = default;
 	//插入值到matrix中
@@ -56,6 +59,8 @@ public:
 	void getItemRange(string dataFile);
 	//打印相关信息
 	void print();
+	//成员线程函数
+	void threadBlock(int blockSize, vector<long double>oldPr, long double addSpider, long double& sumPr);
 };
 
 

@@ -154,7 +154,7 @@ void PageRank::readFile(string dataFile) {
     char fileName[100][300];
     ofstream blockFile[100]; //设置最多一百个分块
     for (int i = 0; i < blockNum; i++) {
-        sprintf_s(fileName[i], "block-%d.txt", i);
+        sprintf_s(fileName[i], "block/block-%d.txt", i);
         blockFile[i].open(fileName[i]);
     }
     
@@ -165,7 +165,9 @@ void PageRank::readFile(string dataFile) {
     | 1/4 0   1/3 0 |   ===>  | 1/4 1/2 0   0 |  + | 1/4 1/2 0   0 |
     | 1/4 1/2 0   0 |   ===>  | 1/4 0   1/3 0 |    | 1/4 0   1/3 1 |
     | 1/4 0   1/3 1 |         
+    这里能分块的原因是左乘M矩阵，每行与r相乘，而存储的时候正是以行进行存储的
     因此在分块的时候需要记住节点i的所有出度数，才能得到节点i->节点j的系数，因此系数等于1/出度数
+    同时每次计算得到的结果只是 r 的部分向量，因此每次迭代后都需要重新组合(也可以不用)得到新的pagerank
     ***/
 
     //依次遍历
@@ -208,14 +210,10 @@ void PageRank::pageRank() {
     long double diff = 1e9; //差值
     int iterations = 0; //迭代次数
     int blockSize = totalNum / blockNum + 1;
+    cout << "The iteration is starting..." << endl;
     while (diff > convergence && iterations < maxIteration) {
         long double sumPr = 0.0; //PageRank所有之和
-       // long double sumDead = 0.0; //dead ends的pageRank之和
         for (int i = 0; i < totalNum; i++) {
-            //如果是dead ends
-            //if (degree[i] == 0) {
-            //    sumDead += pr[i];
-            //}
             sumPr += pr[i];
         }
 
@@ -223,7 +221,6 @@ void PageRank::pageRank() {
             oldPr[i] = pr[i] / sumPr;
         }
 
-      //  long double addDead = beta * sumDead / totalNum / sumPr;
         long double addSpider = alpha * 1.0 / totalNum;
         sumPr = 0.0;
         diff = 0.0;
@@ -232,7 +229,7 @@ void PageRank::pageRank() {
         fstream blockFile;
         for (int block = 0; block < blockNum; block++) {
             char fileName[300];
-            sprintf_s(fileName, "block-%d.txt", block);
+            sprintf_s(fileName, "block/block-%d.txt", block);
             blockFile.open(fileName);
             vector<long double>tmpPr; //部分的PageRank
             tmpPr.resize((size_t)min(blockSize * (block + 1), totalNum) - blockSize * block + 1);
@@ -269,19 +266,15 @@ void PageRank::pageRank() {
             blockFile.close();
         }
 
-        //long double testSum = 0.0;
-
-        //进行归一化处理(但是这里有问题)
+        //进行归一化处理
         for (int i = 0; i < pr.size(); i++) {
             pr[i] /= sumPr;
-            //testSum += pr[i];
         }
-        //cout << "Test Sum is = " << testSum << "testSum is " << testSum<< endl;
 
         for (int i = 0; i < totalNum; i++) {
             diff += fabs(pr[i] - oldPr[i]);
         }
-        cout << diff << endl;
+        cout << "The " << iterations << " iterations => " << diff << endl;
         iterations++;
     }
 
@@ -295,19 +288,25 @@ void PageRank::pageRank() {
     if (showNum < 0 ) {
         for (int i = 0; i < totalNum; i++) {
             result << indexToNode[output[i].second] << " " << pr[output[i].second] << endl;
-            cout << indexToNode[output[i].second] << " " << pr[output[i].second] << endl;
+            cout << indexToNode[output[i].second] << " => " << pr[output[i].second] << endl;
         }
     }
     else {
+        cout << "The Top " << showNum << "Node: " << endl;
         for (int i = 0; i < totalNum; i++) {
             result << indexToNode[output[i].second] << " " << pr[output[i].second] << endl;
         }
+        for (int i = 0; i < showNum; i++) {
+            cout << indexToNode[output[i].second] << "\t=>\t" << pr[output[i].second] << endl;
+        }
     }
-    
     result.close();
-    cout << iterations << endl;
+    cout << "The result in result.txt" << endl;
+    cout <<"The total iterations => " << iterations << endl;
 }
 
 void PageRank::print() {
-    cout << totalNum << " " << totalEdges << " " << minItemNum << " " << maxIteration << " " << maxItemNum << endl;
+    cout << "Total Nodes => " << totalNum << "\n" << "Total Edges => " << totalEdges << "\n" 
+        << "MinNodeID => " << minItemNum << " MaxNodeID => " << maxItemNum << "\n" 
+        << "MaxIteration => " << maxIteration << endl;
 }
