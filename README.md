@@ -67,6 +67,20 @@ pagerank
 └─README.md
 ```
 
+## 程序运行
+
+输入-h可以查看程序运行的参数：
+
+![image-20230430201907537](C:\Users\neverquit\AppData\Roaming\Typora\typora-user-images\image-20230430201907537.png)
+
+下面是分块优化算法程序设置α游走系数为0.85，c阈值为1e-9，m最大迭代次数100，b分块个数20，s展示前100个结果，Data.txt数据集。
+
+![image-20230430202144442](C:\Users\neverquit\AppData\Roaming\Typora\typora-user-images\image-20230430202144442.png)
+
+最后得到结果Top_100.txt为前100个结果，result为全部的结果，注意设置-s参数才会输出前100个结果，否则只会输出全部的result的结果。
+
+![image-20230430202204921](C:\Users\neverquit\AppData\Roaming\Typora\typora-user-images\image-20230430202204921.png)
+
 ## 参考资料
 
 https://youtu.be/ytjf6zYDd4s
